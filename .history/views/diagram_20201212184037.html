@@ -1,0 +1,154 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-11 13:23:40
+ * @LastEditTime: 2020-12-12 18:40:37
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /beeapi/views/diagram.html
+-->
+{{template "base/base.html" .}}
+{{define "head"}}
+<title>{{i18n .Lang "longpolling_chatroom"}} - {{i18n .Lang "app_intro"}}</title>
+{{end}}
+{{define "body"}}
+<div id="container" style="width: 1000px; height: 700px; margin: 0 auto"></div>
+<div id="sendbtn" >发送WebScoket</div>
+<script language="JavaScript">
+   $(document).ready(function () {
+
+      var xAxis = {
+         categories: []
+      };
+      var series = [
+         //   {
+         //      name: 'Tokyo',
+         //      data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2,
+         //         26.5, 23.3, 18.3, 13.9, 9.6]
+         //   }, 
+         //   {
+         //      name: 'New York',
+         //      data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8,
+         //         24.1, 20.1, 14.1, 8.6, 2.5]
+         //   },
+         {
+            name: '生物医药',
+            data: []
+         }
+      ];
+
+      var title = {
+         text: '城市平均气温'
+      };
+      var subtitle = {
+         text: 'Source: runoob.com'
+      };
+
+      var yAxis = {
+         title: {
+            text: 'Temperature (\xB0C)'
+         },
+         plotLines: [{
+            value: 0,
+            width: 1,
+            color: '#808080'
+         }]
+      };
+
+      var tooltip = {
+         valueSuffix: '\xB0C'
+      }
+
+      var legend = {
+         layout: 'vertical',
+         align: 'right',
+         verticalAlign: 'middle',
+         borderWidth: 0
+      };
+
+
+
+      var json = {};
+
+      json.title = title;
+      json.subtitle = subtitle;
+      json.xAxis = xAxis;
+      json.yAxis = yAxis;
+      json.tooltip = tooltip;
+      json.legend = legend;
+      json.series = series;
+
+      $('#container').highcharts(json);
+
+      // Create a socket
+      socket = new WebSocket('ws://' + window.location.host + '/ws/diagram_data?uname=quxiantu');
+      // Message received on the socket
+      socket.onmessage = function (event) {
+         var data = JSON.parse(event.data);
+         var li = document.createElement('li');
+
+         console.log(data);
+
+         switch (data.Type) {
+            case 0: // JOIN
+               if (data.User == $('#uname').text()) {
+                  li.innerText = '你加入了聊天室。';
+               } else {
+                  li.innerText = data.User + ' 加入了聊天室。';
+               }
+               break;
+            case 1: // LEAVE
+               li.innerText = data.User + ' 离开了聊天室。';
+               break;
+            case 2: // MESSAGE
+               dataJson = JSON.parse(data.Content)
+               var xAxis = {
+                  categories: dataJson['categories']
+               };
+               var series = [
+                  //   {
+                  //      name: 'Tokyo',
+                  //      data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2,
+                  //         26.5, 23.3, 18.3, 13.9, 9.6]
+                  //   }, 
+                  //   {
+                  //      name: 'New York',
+                  //      data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8,
+                  //         24.1, 20.1, 14.1, 8.6, 2.5]
+                  //   },
+                  {
+                     name: '生物医药',
+                     data: dataJson['series']
+                  }
+               ];
+               json.xAxis = xAxis;
+               json.series = series;
+
+               
+
+               break;
+         }
+
+         $('#container').highcharts(json);
+      };
+
+      // Send messages.
+      var postConecnt = function () {
+         var uname = "quxiantu";
+         var content = "342";
+         socket.send(content);
+         $('#sendbox').val('');
+      }
+
+      $('#sendbtn').click(function () {
+         postConecnt();
+      });
+
+
+
+
+
+
+
+   });
+</script>
+{{end}}

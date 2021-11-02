@@ -1,0 +1,141 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-11 13:23:40
+ * @LastEditTime: 2020-12-12 19:56:33
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /beeapi/views/diagram.html
+-->
+{{template "base/base.html" .}}
+{{define "head"}}
+<title>{{i18n .Lang "longpolling_chatroom"}} - {{i18n .Lang "app_intro"}}</title>
+{{end}}
+{{define "body"}}
+<div id="container" style="width: 1000px; height: 700px; margin: 0 auto"></div>
+<div id="sendbtn" >发送WebScoket</div>
+<script language="JavaScript">
+   $(document).ready(function () {
+
+      var chart;
+     $(document).ready(function() {
+       var options = {
+         chart: {
+           renderTo: 'container',
+           type: 'line',
+          marginRight: 130,
+          marginBottom: 25
+         },
+         title: {
+           text: '每天的分布情况',
+           x: -20 //center
+         },
+         xAxis: {
+          categories: ['0', '1', '2', '3','4','5','6','7','8','9']
+         },
+         yAxis: {
+           title: {
+            text: 'Y轴'
+           },
+           plotLines: [{
+            value: 0,
+            width: 1,
+            color: '#808080'
+           }]
+         },
+         tooltip: {
+           formatter: function() {
+            return '<b>'+ this.series.name +'</b><br/>' + this.x +': '+ this.y ;
+           }
+         },
+         legend: {
+           layout: 'vertical',
+           align: 'right',
+          verticalAlign: 'top',
+           x: -10,
+           y: 100,
+          borderWidth: 0
+         },
+         series: []
+       }
+       options.series = new Array();
+       var i;
+      for(i=0;i<10;i++)
+       {
+         options.series[i] = new Object();
+         options.series[i].name = 'Sample'+i;
+         options.series[i].data = new Array(0+i, 1+i, 2+i, 3+i,4+i,5+i,6+i,7+i,8+i,9+i);
+       }
+      chart = new Highcharts.Chart(options);
+      // Create a socket
+      socket = new WebSocket('ws://' + window.location.host + '/ws/diagram_data?uname=quxiantu');
+      // Message received on the socket
+      socket.onmessage = function (event) {
+         var data = JSON.parse(event.data);
+         var li = document.createElement('li');
+
+         console.log(data);
+
+         switch (data.Type) {
+            case 0: // JOIN
+               if (data.User == $('#uname').text()) {
+                  li.innerText = '你加入了聊天室。';
+               } else {
+                  li.innerText = data.User + ' 加入了聊天室。';
+               }
+               break;
+            case 1: // LEAVE
+               li.innerText = data.User + ' 离开了聊天室。';
+               break;
+            case 2: // MESSAGE
+               // dataJson = JSON.parse(data.Content)
+               // // var xAxis = {
+               // //    categories: dataJson['categories']
+               // // };
+               // var series = [
+               //    //   {
+               //    //      name: 'Tokyo',
+               //    //      data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2,
+               //    //         26.5, 23.3, 18.3, 13.9, 9.6]
+               //    //   }, 
+               //    //   {
+               //    //      name: 'New York',
+               //    //      data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8,
+               //    //         24.1, 20.1, 14.1, 8.6, 2.5]
+               //    //   },
+               //    {
+               //       name: '安徽',
+               //       data: dataJson['series']
+               //    }
+               // ];
+               // json.xAxis = xAxis;
+               // json.series = series;
+
+               
+
+               break;
+         }
+
+         $('#container').highcharts(json);
+      };
+
+      // Send messages.
+      var postConecnt = function () {
+         var uname = "quxiantu";
+         var content = "342";
+         socket.send(content);
+         $('#sendbox').val('');
+      }
+
+      $('#sendbtn').click(function () {
+         postConecnt();
+      });
+
+
+
+
+
+
+
+   });
+</script>
+{{end}}

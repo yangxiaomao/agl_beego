@@ -1,0 +1,8 @@
+2020/11/17 02:59:00.671 [I] [asm_amd64.s:1374]  http server Running on http://:8889
+2020/11/17 02:59:00.671 [I] [asm_amd64.s:1374]  Admin server Running on :8088
+2020/11/17 03:00:37.670 [D] [server.go:2843]  |  192.168.226.1|[97;42m 200 [0m|     1.9616ms|   match|[97;46m POST    [0m /api1/client/user/user_sign_in   r:/api1/client/user_sign_in
+2020/11/17 03:01:06.396 [D] [server.go:2843]  |  192.168.226.1|[97;42m 200 [0m|    5.36457ms|   match|[97;46m POST    [0m /api1/client/user/user_sign_in   r:/api1/client/user_sign_in
+2020/11/17 03:03:07.314 [D] [server.go:2843]  |  192.168.226.1|[97;42m 200 [0m|   4.812435ms|   match|[97;46m POST    [0m /api1/client/user/user_sign_in   r:/api1/client/user_sign_in
+2020/11/17 03:03:07.953 [D] [server.go:2843]  |  192.168.226.1|[97;42m 200 [0m|   1.517585ms|   match|[97;46m POST    [0m /api1/client/user/user_sign_in   r:/api1/client/user_sign_in
+2020/11/17 03:29:04.958 [I] [asm_amd64.s:1374]  http server Running on http://:8889
+2020/11/17 03:29:04.958 [I] [asm_amd64.s:1374]  Admin server Running on :8088

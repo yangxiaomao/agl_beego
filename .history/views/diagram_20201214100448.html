@@ -1,0 +1,149 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-11 13:23:40
+ * @LastEditTime: 2020-12-14 10:04:48
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /beeapi/views/diagram.html
+-->
+{{template "base/base.html" .}}
+{{define "head"}}
+<title>{{i18n .Lang "longpolling_chatroom"}} - {{i18n .Lang "app_intro"}}</title>
+{{end}}
+{{define "body"}}
+<div id="container" style="width: 1000px; height: 700px; margin: 0 auto"></div>
+<h1>曲线图</h1>
+    <!-- 第一个空图 -->
+    <div id="container" style="width:300px;height:300px;float:left;"></div>
+    <!-- 第二个有数据的图 -->
+    <div id="container2" style="width:300px;height:300px;float:left;"></div>
+    <table border="1" align="left">
+      <tr>
+        <td>CName</td>
+        <td>EName</td>
+        <td>Time</td>
+        <td>Date</td>        
+      </tr>
+      <tr>
+        <td>血小板</td>
+        <td>HPLT</td>
+        <td>1</td>
+        <td>7.0</td>        
+      </tr>
+      <tr>
+        <td>血小板</td>
+        <td>HPLT</td>
+        <td>2</td>
+        <td>6.9</td>        
+      </tr>
+      <tr>
+        <td>血小板</td>
+        <td>HPLT</td>
+        <td>3</td>
+        <td>9.5</td>        
+      </tr>
+    </table>
+<script language="JavaScript">
+   var chart;
+   $(document).ready(function () {
+      chart = new Highcharts.Chart({
+            chart: { 
+            renderTo: 'container'
+          },
+          title: {
+            text: '?',
+          },
+          xAxis: {
+            categories: []
+          },
+          yAxis: {
+            title: {
+              text: '数据'
+            },
+          },
+          series: []
+        });
+      
+      
+      
+      
+      // Create a socket
+      socket = new WebSocket('ws://' + window.location.host + '/ws/diagram_data?uname=quxiantu');
+      // Message received on the socket
+      socket.onmessage = function (event) {
+         var data = JSON.parse(event.data);
+         var li = document.createElement('li');
+
+
+         switch (data.Type) {
+            case 0: // JOIN
+               if (data.User == $('#uname').text()) {
+                  li.innerText = '你加入了聊天室。';
+               } else {
+                  li.innerText = data.User + ' 加入了聊天室。';
+               }
+               break;
+            case 1: // LEAVE
+               li.innerText = data.User + ' 离开了聊天室。';
+               break;
+            case 2: // MESSAGE
+               var trs = $('table tr');
+               console.log(trs)
+               var datas=[];
+               var map={};
+               console.log(data)
+               console.log(data.categories)
+               contentData = JSON.stringify(data.Content)
+               console.log('a'+typeof(contentData['series']))
+               for(var i=1;i<10;i++){
+                     var nams = $('td:first',trs[1]).html();
+                     var value = $('td:last',trs[1]).html();
+                     if(typeof map[nams]=='undefined'){
+                        var pos = datas.length;
+                        map[nams] = pos;
+                        datas[pos]={name:nams,data:[]};
+                     }
+                     datas[map[nams]]["data"].push(Number(value));
+               }
+               var series=chart.series; 
+               console.log(series.length)
+               if(series.length > 0){
+                  series[0].remove(false); 
+               }
+               var d = datas[0];
+               console.log(d)
+               chart.addSeries(d);//设置数据,danielinbiti
+               chart.setTitle({text:d.name});//设置标题 commend by danielinbiti
+               chart.redraw();
+               
+
+               break;
+         }
+         
+      };
+
+      
+       
+      
+
+      // Send messages.
+      var postConecnt = function () {
+         var uname = "quxiantu";
+         var content = "342";
+         socket.send(content);
+         $('#sendbox').val('');
+      }
+
+      $('#sendbtn').click(function () {
+         postConecnt();
+      });
+
+
+
+
+
+
+
+   });
+</script>
+{{end}}
